@@ -1,5 +1,10 @@
 import re
 import sys
+import time
+from emoji import UNICODE_EMOJI
+from collections import Counter
+
+
 
 def main():
     if len(sys.argv) != 2:
@@ -9,10 +14,22 @@ def main():
     messages = extract_messages(lines)
     users = extract_users(messages)
     message_per_user = count_user_messages({user: 0 for user in users}, messages)
-    print(message_per_user)
-
-
-
+    messages_in_day = count_day_messages(messages, "19/11/2024", "22/11/2024")
+    frequent_words = count_frequent_words(messages, "01/01/2024", "31/12/2024")
+    index = 0
+    # for word in sorted(frequent_words, reverse=True, key=lambda s: s["times"]):
+    #     print(f"Word: {word["word"]}, apeared {word["times"]} times")
+    #     index += 1
+    #     if index > 10:
+    #         break
+    frequent_emojis = count_frequent_emojis(messages, "01/01/2024", "31/12/2024")
+    print(frequent_emojis)
+    for emoji in sorted(frequent_emojis.items(), reverse=True, key=lambda kv: (kv[1], kv[0])):
+        print(f"{emoji[0]} appeared {emoji[1]} times")
+        index += 1
+        if index > 10:
+            break
+        
 def load_file(path):
     """ Load the .txt file extracted from WhatsApp """
 
@@ -59,14 +76,88 @@ def count_user_messages(users, messages):
     return users
             
 
-def count_day_messages(day):
-    ...
+def count_day_messages(messages, first_day, last_day = 0):
+    """ Returns all the messages sent and received between the given dates """
 
-def frequent_words(first_day, last_day):
-    ...
+    number_of_messages = 0
+    first_day=time.strptime(str(first_day).replace("/", " "), "%d %m %Y")
 
-def frequent_emojis(first_day, last_day):
-    ...
+    if last_day == 0:
+        last_day = first_day
+    else:
+        last_day = time.strptime(str(last_day).replace("/", " "), "%d %m %Y")
+
+    for message in messages:
+        if match := re.search(r"^(\d\d)/(\d\d)/(\d\d\d\d)", message):
+            message_date = time.strptime(f"{match.group(1)} {match.group(2)} {match.group(3)}", "%d %m %Y")
+            if first_day <= message_date <= last_day:
+                number_of_messages += 1
+
+    return number_of_messages
+        
+
+def count_frequent_words(messages, first_day, last_day = 0):
+    words = []
+
+    first_day=time.strptime(str(first_day).replace("/", " "), "%d %m %Y")
+
+    if last_day == 0:
+        last_day = first_day
+    else:
+        last_day = time.strptime(str(last_day).replace("/", " "), "%d %m %Y")
+
+    for message in messages:
+        if match := re.search(r"^\d\d/\d\d/\d\d\d\d \d\d:\d\d - (?:.[^:]*): (.*)", message):
+            for word in match.group(1).split():
+                if word.lower() in ["<mídia", "oculta>", "e", "a", "de", "da", "do", "se", "que", "o", "pra", "para", "te", "é", "um", "ta", "na", "no", "as", "mas", "os", "com", "aí", "(arquivo", "anexado)", "ou"]:
+                    break
+                index = find_word(words, "word", word)
+                if index == -1:
+                    words.append({"word": word, "times": 1})
+                else:
+                    words[index]["times"] += 1
+        else:
+            for word in message.split():
+                if word.lower() in ["<mídia", "oculta>", "e", "a", "de", "da", "do", "se", "que", "o", "pra", "para", "te", "é", "um", "ta", "na", "no", "as", "mas", "os", "com", "aí", "(arquivo", "anexado)", "ou"]:
+                    break
+                index = find_word(words, "word", word)
+                if index == -1:
+                    words.append({"word": word, "times": 1})
+                else:
+                    words[index]["times"] += 1
+
+    return words
+
+def find_word(lst, key, value):
+    for i, dic in enumerate(lst):
+        if dic[key] == value:
+            return i
+    return -1
+
+
+def count_frequent_emojis(messages, first_day, last_day = 0):
+    emoji = []
+
+    first_day=time.strptime(str(first_day).replace("/", " "), "%d %m %Y")
+
+    if last_day == 0:
+        last_day = first_day
+    else:
+        last_day = time.strptime(str(last_day).replace("/", " "), "%d %m %Y")
+
+    for message in messages:
+        if match := re.search(r"^\d\d/\d\d/\d\d\d\d \d\d:\d\d - (?:.[^:]*): (.*)", message):
+            for word in match.group(1).split():
+                for character in word:
+                    if character in UNICODE_EMOJI["en"]:
+                        emoji.append(character)
+        else:
+            for word in message:
+                for character in word:
+                    if character in UNICODE_EMOJI["en"]:
+                        emoji.append(character)
+
+    return Counter(emoji)
 
 def report():
     ...
