@@ -1,6 +1,6 @@
 # 📊 WhatsApp Chat Analyzer
 
-Video demo: https://youtu.be/pkIC6Y225EI
+Video demo: https://youtu.be/q2G--zJqDGg
 
 Final project for **CS50's Introduction to Programming with Python**.  
 This program analyzes a `.txt` file exported from a WhatsApp chat and provides insightful statistics about the conversation.
