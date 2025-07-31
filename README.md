@@ -54,4 +54,4 @@ The program generates:
 
 ## 🧑‍💻 Author
 
-Developed by **[Your Name Here]** as the final project for [CS50's Introduction to Programming with Python](https://cs50.harvard.edu/python/).
+Developed by **Lucas Reis** as the final project for [CS50's Introduction to Programming with Python](https://cs50.harvard.edu/python/).
