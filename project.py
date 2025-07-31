@@ -6,9 +6,6 @@ from emoji import UNICODE_EMOJI
 from collections import Counter
 import matplotlib.pyplot as plt
 
-
-
-
 def main():
     if len(sys.argv) != 2:
         sys.exit("Usage: python project.py 'file path'.txt")
@@ -195,6 +192,8 @@ def count_frequent_words(messages, first_day, last_day = 0):
     return words
 
 def find_word(lst, key, value):
+    """ Iterate through a list of dictionaries pairs and returns the index of a given word """
+
     for i, dic in enumerate(lst):
         if dic[key].lower() == value.lower():
             return i
@@ -202,6 +201,8 @@ def find_word(lst, key, value):
 
 
 def count_frequent_emojis(messages, first_day, last_day = 0):
+    """ Counts individually all sent emojis """
+
     emoji = []
 
     if last_day == 0:
@@ -225,6 +226,8 @@ def count_frequent_emojis(messages, first_day, last_day = 0):
     return Counter(emoji)
 
 def report(messages, users, first_day, last_day = 0):
+    """ Returns two graphs: messages per user per day and all time messages per user between given dates """
+
     fixed_first_day = first_day
     fixed_last_day = last_day
     tp_all_time_user_messages = {name: 0 for name in users}
